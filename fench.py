@@ -10,8 +10,7 @@ def get_date():
     return datetime.now().strftime("%Y%m%d")
 
 # 当前日期
-#DATE = get_date()
-DATE = '20241226'
+DATE = get_date()
 
 # 文件路径
 NEWS_PATH = os.path.join(os.getcwd(), 'news')
