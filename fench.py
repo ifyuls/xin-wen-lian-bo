@@ -1,9 +1,11 @@
 import aiohttp
 import asyncio
-from bs4 import BeautifulSoup
 import os
 import json
+import re
 from datetime import datetime
+from bs4 import BeautifulSoup
+from notion_client import Client
 
 # 获取当前日期
 def get_date():
@@ -11,6 +13,7 @@ def get_date():
 
 # 当前日期
 DATE = get_date()
+DATE = '20241227'
 
 # 文件路径
 NEWS_PATH = os.path.join(os.getcwd(), 'news')
@@ -26,6 +29,13 @@ print('DATE:', DATE)
 print('NEWS_PATH:', NEWS_PATH)
 print('README_PATH:', README_PATH)
 print('CATALOGUE_JSON_PATH:', CATALOGUE_JSON_PATH)
+
+#设置notion
+NOTION_API_TOKEN = "MyNotionToken"
+DATABASE_ID = "MyPageId"
+
+# 初始化 Notion 客户端
+notion = Client(auth=NOTION_API_TOKEN)
 
 # 异步请求函数
 async def fetch(url, session):
@@ -139,16 +149,118 @@ def update_catalogue(catalogue_json_path, readme_md_path, date, abstract):
     
     print('更新 README.md 完成')
 
+
+#添加notion页面
+def create_news_page(content):
+    
+    # Split content into lines and filter empty lines
+    lines = [line.strip() for line in content.split('\n') if line.strip()]
+    
+    # Prepare the blocks for the page
+    blocks = []
+    for line in lines:
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{"type": "text", "text": {"content": line}}]
+            },
+        })
+    
+    try:
+        page = notion.pages.create(
+            parent={
+                "type": "page_id",
+                "page_id": DATABASE_ID
+            },
+            properties={
+                "title":[
+                    {
+                        "type": "text",
+                        "text": {
+                            "content": DATE
+                        }
+                    }
+                ]
+            },
+            children=blocks
+        )
+        print('创建notion摘要完成')
+    except Exception as e:
+        print(f"创建页面失败：{e}") 
+    return page
+
+#在创建的页面中追加内容
+def update_news_page(page_id, title, content, link):
+    blocks=[]
+    blocks.append({
+        "object": "block",
+        "type": "heading_3",
+        "heading_3": {
+            "rich_text": [{
+                "type": "text",
+                "text": {
+                    "content": title,
+                    "link": {"url": link}
+                }
+            }]
+        }
+    })
+    
+    #添加粗体支持
+    def parse_markdown_to_notion(paragraph):
+         """
+         将 Markdown 格式的 **加粗文本** 转换为 Notion rich_text 结构。
+         """
+         rich_text = []
+         pattern = re.compile(r"(\*\*(.*?)\*\*)|([^\*]+)")  # 匹配 **粗体** 或普通文本
+         matches = pattern.finditer(paragraph)
+         
+         for match in matches:
+             if match.group(1):  # 匹配到粗体部分
+                 rich_text.append({
+                     "type": "text",
+                     "text": {"content": match.group(2)},  # 提取粗体文本
+                     "annotations": {"bold": True}  # 设置粗体
+                 })
+             elif match.group(3):  # 匹配到普通文本
+                 rich_text.append({
+                     "type": "text",
+                     "text": {"content": match.group(3)}  # 普通文本内容
+                 })
+         
+         return rich_text 
+    
+    paragraphs = content.split('\n\n')
+    for paragraph in paragraphs:
+        blocks.append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": parse_markdown_to_notion(paragraph)
+            }
+        })
+
+    try:
+        notion.blocks.children.append(block_id=page_id, children=blocks)
+        print("更新noiton页面成功")
+    except Exception as e:
+        print(f"更新页面失败：{e}")
+
 # 主程序
 async def main():
     async with aiohttp.ClientSession() as session:
         news_list = await get_news_list(DATE, session)
         abstract = await get_abstract(news_list['abstract'], session)
         news = await get_news(news_list['news'], session)
-        md = news_to_markdown(DATE, abstract, news, news_list['news'])
         
-        save_text_to_file(NEWS_MD_PATH, md)
-        update_catalogue(CATALOGUE_JSON_PATH, README_PATH, DATE, abstract)
+        #md = news_to_markdown(DATE, abstract, news, news_list['news'])
+        #save_text_to_file(NEWS_MD_PATH, md)
+        #update_catalogue(CATALOGUE_JSON_PATH, README_PATH, DATE, abstract)
+
+        page = create_news_page(abstract)
+        for i, item in enumerate(news):
+            update_news_page(page["id"], item["title"], item["content"], news_list['news'][i])
         print('全部成功, 程序结束')
 
 # 运行
