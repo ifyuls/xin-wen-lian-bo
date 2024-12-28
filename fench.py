@@ -258,9 +258,9 @@ async def main():
         #save_text_to_file(NEWS_MD_PATH, md)
         #update_catalogue(CATALOGUE_JSON_PATH, README_PATH, DATE, abstract)
 
-        page = create_news_page(abstract)
+        new_page = create_news_page(abstract)
         for i, item in enumerate(news):
-            update_news_page(page["id"], item["title"], item["content"], news_list['news'][i])
+            update_news_page(new_page["id"], item["title"], item["content"], news_list['news'][i])
         print('全部成功, 程序结束')
 
 # 运行
