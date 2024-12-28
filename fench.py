@@ -32,7 +32,6 @@ print('CATALOGUE_JSON_PATH:', CATALOGUE_JSON_PATH)
 
 #设置notion
 NOTION_API_TOKEN = os.getenv("NOTION_API_KEY")
-print(NOTION_API_TOKEN)
 DATABASE_ID = "169f922583ca8091b47aca87c6a885e2"
 # 初始化 Notion 客户端
 notion = Client(auth=NOTION_API_TOKEN)
