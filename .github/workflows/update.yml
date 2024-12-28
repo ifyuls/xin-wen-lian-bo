@@ -29,6 +29,8 @@ jobs:
 
       # 运行爬虫脚本
       - name: Run News Crawler
+        env:
+          NOTION_API_KEY: ${{ secrets.MYNOTIONTOKEN }}
         run: |
           python fench.py
 
