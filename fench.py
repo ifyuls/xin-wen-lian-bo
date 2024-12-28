@@ -31,8 +31,8 @@ print('README_PATH:', README_PATH)
 print('CATALOGUE_JSON_PATH:', CATALOGUE_JSON_PATH)
 
 #设置notion
-NOTION_API_TOKEN = "MyNotionToken"
-DATABASE_ID = "MyPageId"
+NOTION_API_TOKEN = "MYNOTIONTOKEN"
+DATABASE_ID = "MYPAGEID"
 
 # 初始化 Notion 客户端
 notion = Client(auth=NOTION_API_TOKEN)
