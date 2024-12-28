@@ -13,7 +13,6 @@ def get_date():
 
 # 当前日期
 DATE = get_date()
-DATE = '20241227'
 
 # 文件路径
 NEWS_PATH = os.path.join(os.getcwd(), 'news')
@@ -253,9 +252,9 @@ async def main():
         abstract = await get_abstract(news_list['abstract'], session)
         news = await get_news(news_list['news'], session)
         
-        #md = news_to_markdown(DATE, abstract, news, news_list['news'])
-        #save_text_to_file(NEWS_MD_PATH, md)
-        #update_catalogue(CATALOGUE_JSON_PATH, README_PATH, DATE, abstract)
+        md = news_to_markdown(DATE, abstract, news, news_list['news'])
+        save_text_to_file(NEWS_MD_PATH, md)
+        update_catalogue(CATALOGUE_JSON_PATH, README_PATH, DATE, abstract)
 
         new_page = create_news_page(abstract)
         for i, item in enumerate(news):
