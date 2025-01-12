@@ -13,6 +13,7 @@ def get_date():
 
 # 当前日期
 DATE = get_date()
+DATE = '20250111'
 
 # 文件路径
 NEWS_PATH = os.path.join(os.getcwd(), 'news')
