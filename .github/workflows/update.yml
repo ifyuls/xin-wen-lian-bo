@@ -2,8 +2,8 @@ name: Daily News Crawler
 
 on:
   schedule:
-    # 每天晚上 8:30 运行
-    - cron: '30 12 * * *'
+    # 每天晚上 9:30 运行
+    - cron: '30 13 * * *'
   workflow_dispatch: # 允许手动触发
 
 jobs:
