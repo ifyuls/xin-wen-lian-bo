@@ -6,6 +6,7 @@ import re
 from datetime import datetime
 from bs4 import BeautifulSoup
 from notion_client import Client
+from chardet.universaldetector import UniversalDetector
 
 # 获取当前日期
 def get_date():
