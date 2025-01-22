@@ -37,8 +37,22 @@ notion = Client(auth=NOTION_API_TOKEN)
 
 # 异步请求函数
 async def fetch(url, session):
-    async with session.get(url) as response:
-        return await response.text()
+    try:
+        async with session.get(url) as response:
+            # 读取原始二进制内容
+            raw_data = await response.read()
+            
+            # 使用 chardet 检测编码
+            detector = UniversalDetector()
+            detector.feed(raw_data)
+            detector.close()
+            encoding = detector.result['encoding'] or 'utf-8'
+            
+            # 解码为字符串
+            return raw_data.decode(encoding, errors='ignore')
+    except Exception as e:
+        print(f"请求失败或解码错误：{e}，链接：{url}")
+        return ''
 
 # 获取新闻列表
 async def get_news_list(date, session):
