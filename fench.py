@@ -183,18 +183,20 @@ def create_news_page(content):
     try:
         page = notion.pages.create(
             parent={
-                "type": "page_id",
+                "type": "database_id",
                 "page_id": DATABASE_ID
             },
             properties={
-                "title":[
-                    {
-                        "type": "text",
-                        "text": {
-                            "content": DATE
+                "标题": {
+                    "title": [
+                        {
+                            "type": "text",
+                            "text": {
+                                "content": DATE
+                            }
                         }
-                    }
-                ]
+                    ]
+                }
             },
             children=blocks
         )
