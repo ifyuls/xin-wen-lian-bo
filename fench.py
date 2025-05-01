@@ -184,7 +184,7 @@ def create_news_page(content):
         page = notion.pages.create(
             parent={
                 "type": "database_id",
-                "page_id": DATABASE_ID
+                "database_id": DATABASE_ID
             },
             properties={
                 "标题": {
