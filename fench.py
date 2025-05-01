@@ -187,7 +187,7 @@ def create_news_page(content):
                 "database_id": DATABASE_ID
             },
             properties={
-                "标题": {
+                "名称": {
                     "title": [
                         {
                             "type": "text",
