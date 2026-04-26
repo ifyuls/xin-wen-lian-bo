@@ -1,4 +1,8 @@
+requests
 beautifulsoup4
 aiohttp
 notion-client
 chardet
+feedgen
+markdown
+pytz
