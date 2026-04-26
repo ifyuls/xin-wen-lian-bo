@@ -7,6 +7,9 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from notion_client import Client
 from chardet.universaldetector import UniversalDetector
+from feedgen.feed import FeedGenerator
+import markdown
+import pytz
 
 # 获取当前日期
 def get_date():
@@ -273,6 +276,37 @@ async def main():
         save_text_to_file(NEWS_MD_PATH, md)
         update_catalogue(CATALOGUE_JSON_PATH, README_PATH, DATE, abstract)
 
+        # === 新增：生成 RSS 逻辑 ===
+        fg = FeedGenerator()
+        fg.title('新闻联播文字稿')
+        fg.link(href='https://github.com/ifyuls/xin-wen-lian-bo', rel='alternate')
+        fg.description('每日新闻联播文字稿实时更新')
+        fg.language('zh-CN')
+
+        # 1. 添加摘要条目
+        fe = fg.add_entry()
+        fe.title(f"【摘要】新闻联播 - {DATE}")
+        fe.link(href=f"https://github.com/ifyuls/xin-wen-lian-bo/blob/main/news/{DATE}.md")
+        fe.content(f"<pre>{abstract}</pre>", type='html')
+        fe.id(f"abs-{DATE}")
+
+        # 2. 添加具体新闻条目（只保留当晚的内容）
+        for i, item in enumerate(news):
+            if item['title'] and item['content']:
+                fe_item = fg.add_entry()
+                fe_item.title(item['title'])
+                fe_item.link(href=news_list['news'][i])
+                # 将 Markdown 转为 HTML 以便阅读器渲染
+                html_content = markdown.markdown(item['content'])
+                fe_item.content(html_content, type='html')
+                fe_item.id(news_list['news'][i])
+                fe_item.pubDate(datetime.now(pytz.timezone('Asia/Shanghai')))
+
+        # 3. 写入根目录下的 rss.xml
+        fg.rss_file('rss.xml', pretty=True)
+        print('✅ RSS 文件 rss.xml 生成成功')
+        # === RSS 逻辑结束 ===
+        
         new_page = create_news_page(abstract)
         for i, item in enumerate(news):
             update_news_page(new_page["id"], item["title"], item["content"], news_list['news'][i])
