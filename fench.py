@@ -291,16 +291,21 @@ async def main():
         fe.id(f"abs-{DATE}")
 
         # 2. 添加具体新闻条目（只保留当晚的内容）
-        for i, item in enumerate(news):
+        news_count = len(news)
+        for i in range(news_count － 1，-1，-1)：#从最后一个索引开始到θ
+            item = news[i]
+            link_href = news_list['news'][i]
+        
             if item['title'] and item['content']:
                 fe_item = fg.add_entry()
                 fe_item.title(item['title'])
-                fe_item.link(href=news_list['news'][i])
-                # 将 Markdown 转为 HTML 以便阅读器渲染
+                fe_item.link(href=link_href)
+                
                 html_content = markdown.markdown(item['content'])
                 fe_item.content(html_content, type='html')
-                fe_item.id(news_list['news'][i])
-                fe_item.pubDate(datetime.now(pytz.timezone('Asia/Shanghai')))
+                fe_item.id(link_href)
+                #越靠后的新闻时间越新
+                fe_item.pubDate(base_time + timedelta(seconds=i))
 
         # 3. 写入根目录下的 rss.xml
         fg.rss_file('rss.xml', pretty=True)
