@@ -292,7 +292,7 @@ async def main():
 
         # 2. 添加具体新闻条目（只保留当晚的内容）
         news_count = len(news)
-        for i in range(news_count － 1，-1，-1)：#从最后一个索引开始到θ
+        for i in range(news_count - 1，-1，-1)：#从最后一个索引开始到θ
             item = news[i]
             link_href = news_list['news'][i]
         
