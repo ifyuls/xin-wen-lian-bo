@@ -307,7 +307,7 @@ async def main():
                 fe_item.content(html_content, type='html')
                 fe_item.id(link_href)
                 #越靠后的新闻时间越新
-                fe_item.pubDate(base_time - timedelta(minutes=(news_count - i)))
+                fe_item.pubDate(base_time - timedelta(seconds=i))
 
         # 3. 写入根目录下的 rss.xml
         fg.rss_file('rss.xml', pretty=True)
