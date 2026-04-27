@@ -3,7 +3,7 @@ import asyncio
 import os
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from notion_client import Client
 from chardet.universaldetector import UniversalDetector
@@ -277,6 +277,8 @@ async def main():
         update_catalogue(CATALOGUE_JSON_PATH, README_PATH, DATE, abstract)
 
         # === 新增：生成 RSS 逻辑 ===
+        base_time = datetime.now(pytz.timezone('Asia/Shanghai'))
+        
         fg = FeedGenerator()
         fg.title('新闻联播文字稿')
         fg.link(href='https://github.com/ifyuls/xin-wen-lian-bo', rel='alternate')
@@ -305,7 +307,7 @@ async def main():
                 fe_item.content(html_content, type='html')
                 fe_item.id(link_href)
                 #越靠后的新闻时间越新
-                fe_item.pubDate(base_time + timedelta(seconds=i))
+                fe_item.pubDate(base_time - timedelta(minutes=(news_count - i)))
 
         # 3. 写入根目录下的 rss.xml
         fg.rss_file('rss.xml', pretty=True)
